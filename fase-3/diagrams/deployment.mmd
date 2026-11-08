@@ -1,0 +1,35 @@
+flowchart TB
+    subgraph public[Sub-redes públicas em duas AZs]
+        nlb[NLB público]
+        nat1[NAT Gateway AZ A]
+        nat2[NAT Gateway AZ B]
+    end
+
+    subgraph private[Sub-redes privadas em duas AZs]
+        vpclink[VPC Link]
+
+        subgraph eks[EKS]
+            nodes[Node group privado 1 a 4 nodes]
+            deploy[Deployment oficina-api 2 réplicas]
+            service[Service ClusterIP]
+            migration[Job Alembic]
+            hpa[HPA 2 a 10 pods]
+            lbctl[AWS Load Balancer Controller]
+            newrelic[nri-bundle]
+        end
+
+        rds[(RDS PostgreSQL Single-AZ)]
+    end
+
+    internet[Internet] --> apigw[API Gateway]
+    apigw --> vpclink
+    vpclink --> nlb
+    nlb --> service
+    service --> deploy
+    deploy --> rds
+    migration --> rds
+    hpa -.-> deploy
+    lbctl -.-> service
+    nodes --> nat1
+    nodes --> nat2
+    newrelic --> nr[New Relic SaaS]

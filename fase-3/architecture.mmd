@@ -1,0 +1,57 @@
+flowchart LR
+    user[Cliente HTTP]
+
+    subgraph aws[AWS us-east-1]
+        apigw[API Gateway HTTP API]
+        cw[CloudWatch Logs]
+
+        subgraph vpc[VPC 10.0.0.0/16]
+            subgraph public[Sub-redes públicas]
+                nlb[Network Load Balancer TCP 80]
+                nat[NAT Gateways]
+            end
+
+            subgraph private[Sub-redes privadas]
+                vpclink[VPC Link]
+
+                subgraph eks[Amazon EKS]
+                    tgb[TargetGroupBinding]
+                    svc[Service ClusterIP porta 80]
+                    pods[Pods FastAPI porta 8000]
+                    job[Job Alembic]
+                    hpa[HPA]
+                    nrinfra[New Relic nri-bundle]
+                end
+
+                rds[(RDS PostgreSQL 16)]
+            end
+        end
+
+        lambda[Lambda validadora de CPF]
+        ecr[ECR application]
+        secrets[Secrets Manager JWT]
+    end
+
+    nr[New Relic]
+    gha[GitHub Actions]
+
+    user -->|HTTPS| apigw
+    apigw -->|access logs| cw
+    apigw -->|HTTP proxy| vpclink
+    vpclink --> nlb
+    nlb --> tgb
+    tgb --> svc
+    svc --> pods
+    pods -->|SQL| rds
+    job -->|migrations| rds
+    pods -->|Invoke síncrono| lambda
+    hpa -.->|escala| pods
+    pods -->|APM, traces e eventos| nr
+    nrinfra -->|métricas, eventos e logs| nr
+    gha -->|push da imagem| ecr
+    ecr -->|pull| pods
+    gha -->|injeta configuração| pods
+    secrets -->|lido pela pipeline| gha
+
+    note[Authorizer JWT e integração CPF existem no Terraform, mas não estão associadas às rotas do API Gateway]
+    note -.-> apigw

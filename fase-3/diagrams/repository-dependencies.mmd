@@ -1,0 +1,21 @@
+flowchart LR
+    external[Pré-requisitos externos]
+    lambda[tech-challenge-fiap-lambda]
+    shared[shared-infra]
+    database[database-infra]
+    app[tech-challenge-fiap]
+
+    external -->|LabRole e credenciais AWS| lambda
+    external -->|bucket S3, LabRole e licença New Relic| shared
+    external -->|senha do banco| database
+    external -->|secrets GitHub e SMTP| app
+
+    lambda -->|nome e ARN da função existente| shared
+    shared -->|remote state: VPC e sub-redes| database
+    shared -->|remote state: EKS, ECR, Lambda e JWT| app
+    database -->|remote state: endpoint, porta, banco e usuário| app
+
+    app -->|imagem e manifests| runtime[Aplicação no EKS]
+    shared --> runtime
+    database --> runtime
+    lambda --> runtime

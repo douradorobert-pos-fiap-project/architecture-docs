@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor C as Cliente
+    participant G as API Gateway
+    participant N as NLB
+    participant S as Service Kubernetes
+    participant A as FastAPI
+    participant D as PostgreSQL RDS
+    participant L as Lambda CPF
+    participant R as New Relic
+
+    C->>G: Requisição HTTP
+    G->>N: HTTP_PROXY via VPC Link
+    N->>S: Target IP via TargetGroupBinding
+    S->>A: Porta 8000
+    A->>A: Cria ou reutiliza X-Correlation-ID
+    opt Rota protegida
+        A->>A: Valida JWT Bearer
+    end
+    A->>D: SQL via SQLAlchemy
+    opt Criação de cliente com Lambda configurada
+        A->>L: Invoke RequestResponse com CPF
+        alt Lambda responde
+            L-->>A: valid true ou false
+        else Erro de integração
+            A->>A: Validação local de fallback
+            A->>R: IntegrationError
+        end
+    end
+    D-->>A: Resultado
+    A->>R: APM, log JSON e evento customizado
+    A-->>S: Resposta com X-Correlation-ID
+    S-->>N: Resposta
+    N-->>G: Resposta
+    G-->>C: Resposta HTTP

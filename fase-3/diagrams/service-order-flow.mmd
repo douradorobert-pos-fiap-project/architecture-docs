@@ -1,0 +1,13 @@
+stateDiagram-v2
+    [*] --> RECEBIDA: abrir OS
+    RECEBIDA --> DIAGNOSTICO: iniciar diagnóstico
+    DIAGNOSTICO --> AGUARDANDO_APROVACAO: gerar orçamento
+    AGUARDANDO_APROVACAO --> EM_EXECUCAO: aprovar orçamento
+    AGUARDANDO_APROVACAO --> CANCELADA: recusar orçamento
+    EM_EXECUCAO --> FINALIZADA: finalizar serviço
+    FINALIZADA --> ENTREGUE: entregar veículo
+    RECEBIDA --> CANCELADA: cancelar
+    DIAGNOSTICO --> CANCELADA: cancelar
+    EM_EXECUCAO --> CANCELADA: cancelar
+    ENTREGUE --> [*]
+    CANCELADA --> [*]
