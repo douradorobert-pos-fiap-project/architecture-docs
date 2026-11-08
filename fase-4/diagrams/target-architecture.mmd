@@ -1,0 +1,66 @@
+flowchart LR
+    Client[Cliente ou operador]
+    APIGW[Amazon API Gateway]
+    NLB[Network Load Balancer]
+
+    subgraph EKS[Amazon EKS compartilhado]
+        OS[OS Service]
+        Billing[Billing Service]
+        Execution[Execution Service]
+        RelayOS[OS Outbox Relay]
+        RelayBilling[Billing Outbox Relay]
+        RelayExecution[Execution Outbox Relay]
+        NR[New Relic agents]
+    end
+
+    subgraph SQL[Amazon RDS PostgreSQL compartilhado]
+        OSDB[(os_db)]
+        BillingDB[(billing_db)]
+    end
+
+    Dynamo[(Amazon DynamoDB)]
+
+    subgraph Messaging[Amazon SQS]
+        OSQueue[[OS command and event queues]]
+        BillingQueue[[Billing command and event queues]]
+        ExecutionQueue[[Execution command and event queues]]
+        DLQ[[Dead-letter queues]]
+    end
+
+    MP[Mercado Pago test environment]
+    CPF[AWS Lambda CPF]
+    NewRelic[New Relic]
+
+    Client -->|HTTPS REST| APIGW
+    APIGW -->|VPC Link| NLB
+    NLB -->|route /os| OS
+    NLB -->|route /billing| Billing
+    NLB -->|route /execution| Execution
+
+    OS -->|SQL; exclusive credentials| OSDB
+    Billing -->|SQL; exclusive credentials| BillingDB
+    Execution -->|DynamoDB API| Dynamo
+
+    OS -->|transaction| RelayOS
+    Billing -->|transaction| RelayBilling
+    Execution -->|TransactWriteItems| RelayExecution
+    RelayOS --> OSQueue
+    RelayBilling --> BillingQueue
+    RelayExecution --> ExecutionQueue
+
+    OSQueue --> OS
+    BillingQueue --> Billing
+    ExecutionQueue --> Execution
+    OSQueue -. maxReceiveCount .-> DLQ
+    BillingQueue -. maxReceiveCount .-> DLQ
+    ExecutionQueue -. maxReceiveCount .-> DLQ
+
+    Billing -->|QR order; status; refund| MP
+    MP -->|webhook signal| Billing
+    OS -->|synchronous validation| CPF
+
+    OS -. logs and traces .-> NR
+    Billing -. logs and traces .-> NR
+    Execution -. logs and traces .-> NR
+    NR --> NewRelic
+

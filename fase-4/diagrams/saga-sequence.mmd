@@ -1,0 +1,64 @@
+sequenceDiagram
+    autonumber
+    actor Customer as Cliente
+    participant OS as OS Service / Orchestrator
+    participant MQ as SQS
+    participant EX as Execution Service
+    participant BI as Billing Service
+    participant MP as Mercado Pago
+
+    Customer->>OS: POST /service-orders
+    OS->>OS: Persist OS + Saga + Outbox
+    OS-->>Customer: 202 OS recebida
+    OS->>MQ: DiagnosisRequestedV1
+    MQ->>EX: DiagnosisRequestedV1
+    EX->>EX: Persist diagnosis + Inbox + Outbox
+    EX->>MQ: DiagnosisCompletedV1
+    MQ->>OS: DiagnosisCompletedV1
+    OS->>OS: Advance Saga + Outbox
+    OS->>MQ: QuoteGenerationRequestedV1
+    MQ->>BI: QuoteGenerationRequestedV1
+    BI->>BI: Persist quote snapshot + Inbox + Outbox
+    BI->>MQ: QuoteGeneratedV1
+    MQ->>OS: QuoteGeneratedV1
+    OS->>OS: Set AGUARDANDO_APROVACAO
+    Customer->>BI: Approve quote
+    BI->>BI: Persist approval + Outbox
+    BI->>MQ: QuoteApprovedV1
+    MQ->>OS: QuoteApprovedV1
+    OS->>MQ: ExecutionRequestedV1
+    MQ->>EX: ExecutionRequestedV1
+    EX->>EX: Execute and persist repair
+    EX->>MQ: ExecutionCompletedV1
+    MQ->>OS: ExecutionCompletedV1
+    OS->>OS: Set FINALIZADA + Outbox
+    OS->>MQ: PaymentCreationRequestedV1
+    MQ->>BI: PaymentCreationRequestedV1
+    BI->>MP: Create dynamic QR with idempotency key
+    MP-->>BI: Payment order + qr_data
+    BI->>BI: Persist pending payment + Outbox
+    BI->>MQ: PaymentPendingV1
+    MP->>BI: Webhook signal
+    BI->>MP: Query authenticated payment status
+    MP-->>BI: approved
+    BI->>BI: Persist confirmation + Inbox + Outbox
+    BI->>MQ: PaymentConfirmedV1
+    MQ->>OS: PaymentConfirmedV1
+    OS->>OS: Set ENTREGUE and complete Saga
+
+    alt Failure before repair starts
+        OS->>MQ: CancelExecutionV1 or CancelQuoteV1
+        MQ-->>EX: Release operational reservation
+        MQ-->>BI: Cancel pending quote or payment
+        OS->>OS: Mark Saga compensated and OS cancelled
+    else Failure after repair starts
+        EX->>MQ: ExecutionFailedV1 requiring manual handling
+        MQ->>OS: Failure event
+        OS->>OS: Mark Saga manual intervention required
+    else Confirmed payment requires reversal
+        OS->>MQ: RefundPaymentV1 after explicit authorization
+        MQ->>BI: RefundPaymentV1
+        BI->>MP: Idempotent refund
+        MP-->>BI: Refund status
+        BI->>MQ: PaymentRefundedV1
+    end
