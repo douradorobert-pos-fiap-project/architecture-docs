@@ -104,4 +104,3 @@ Esse conjunto será registrado em ADR como ferramenta equivalente ao SonarQube, 
 - não executar push, merge, criação remota de repositório, configuração remota de branch protection ou deploy AWS sem autorização;
 - validar permissões SQS e DynamoDB com operações somente leitura antes de qualquer provisionamento;
 - todo o fluxo deve ser executável localmente sem credenciais AWS ou Mercado Pago reais.
-

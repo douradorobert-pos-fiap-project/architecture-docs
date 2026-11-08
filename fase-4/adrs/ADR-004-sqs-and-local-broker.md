@@ -45,4 +45,3 @@ Aceitável, mas ElasticMQ é preferido para mensageria isolada por ser menor e s
 ## Requisitos relacionados
 
 REQ-COMM-002/003, REQ-SAGA-001/002, REQ-INFRA-002 e DEC-004.
-

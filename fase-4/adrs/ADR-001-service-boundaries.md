@@ -43,4 +43,3 @@ Rejeitada porque preço e composição do orçamento são autoridade financeira.
 ## Requisitos relacionados
 
 REQ-ARCH-001 a REQ-ARCH-003, REQ-DATA-001 a REQ-DATA-004, REQ-OS-001 a REQ-EXEC-003.
-

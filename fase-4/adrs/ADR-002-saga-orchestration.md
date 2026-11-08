@@ -51,4 +51,3 @@ Rejeitada porque acopla disponibilidade e não resolve publicação atômica, re
 ## Requisitos relacionados
 
 REQ-SAGA-001 a REQ-SAGA-004, REQ-COMM-002 e DEC-001/DEC-005.
-
