@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://douradorobert-pos-fiap-project.github.io/contracts/events/integration-event-v1.schema.json",
+  "title": "IntegrationEventV1",
+  "description": "Version-one commands and events exchanged by the Fase 4 services.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "event_version",
+    "occurred_at",
+    "correlation_id",
+    "causation_id",
+    "saga_id",
+    "order_id",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "ServiceOrderOpenedV1",
+        "DiagnosisStartedV1",
+        "DiagnosisRequestedV1",
+        "DiagnosisCompletedV1",
+        "QuoteGenerationRequestedV1",
+        "QuoteGeneratedV1",
+        "QuoteApprovedV1",
+        "QuoteRejectedV1",
+        "ExecutionRequestedV1",
+        "ExecutionQueuedV1",
+        "ExecutionStartedV1",
+        "ExecutionCompletedV1",
+        "ExecutionFailedV1",
+        "ExecutionCancelledV1",
+        "PaymentCreationRequestedV1",
+        "PaymentPendingV1",
+        "PaymentConfirmedV1",
+        "PaymentRejectedV1",
+        "PaymentRefundedV1"
+      ]
+    },
+    "event_version": {"const": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "correlation_id": {"type": "string", "format": "uuid"},
+    "causation_id": {"type": "string", "format": "uuid"},
+    "saga_id": {"type": "string", "format": "uuid"},
+    "order_id": {"type": "string", "format": "uuid"},
+    "payload": {"type": "object"}
+  }
+}

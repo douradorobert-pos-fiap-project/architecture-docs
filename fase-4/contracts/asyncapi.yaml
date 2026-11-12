@@ -1,0 +1,116 @@
+asyncapi: 2.6.0
+info:
+  title: FIAP Workshop Distributed Events
+  version: 1.0.0
+  description: >-
+    Contracts for asynchronous Fase 4 flows. Delivery is at least once;
+    consumers commit their Inbox and business state before acknowledging.
+defaultContentType: application/json
+servers:
+  aws:
+    url: sqs.{region}.amazonaws.com
+    protocol: https
+    description: Amazon SQS in the AWS sandbox when permissions are available.
+  local:
+    url: localhost:9324
+    protocol: https
+    description: ElasticMQ SQS-compatible endpoint for local and CI execution.
+channels:
+  service-order-commands:
+    description: Commands consumed by the OS Service.
+    subscribe:
+      message:
+        $ref: '#/components/messages/IntegrationEvent'
+  billing-commands:
+    description: Quote and payment commands consumed by Billing Service.
+    subscribe:
+      message:
+        $ref: '#/components/messages/IntegrationEvent'
+  execution-commands:
+    description: Diagnosis and repair commands consumed by Execution Service.
+    subscribe:
+      message:
+        $ref: '#/components/messages/IntegrationEvent'
+  domain-events:
+    description: Domain events consumed by the OS Saga orchestrator.
+    publish:
+      message:
+        $ref: '#/components/messages/IntegrationEvent'
+  service-order-dlq:
+    description: >-
+      Poison OS messages after three receives. Replay only after correcting the
+      cause and validating the schema; resend unchanged event_id to preserve Inbox deduplication.
+  billing-dlq:
+    description: >-
+      Poison Billing messages after three receives. Replay only after correcting
+      the cause and validating the schema; resend unchanged event_id.
+  execution-dlq:
+    description: >-
+      Poison Execution messages after three receives. Replay only after correcting
+      the cause and validating the schema; resend unchanged event_id.
+components:
+  messages:
+    IntegrationEvent:
+      name: IntegrationEventV1
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/IntegrationEvent'
+  schemas:
+    IntegrationEvent:
+      type: object
+      additionalProperties: false
+      required:
+        - event_id
+        - event_type
+        - event_version
+        - occurred_at
+        - correlation_id
+        - causation_id
+        - saga_id
+        - order_id
+        - payload
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+          enum:
+            - ServiceOrderOpenedV1
+            - DiagnosisStartedV1
+            - DiagnosisRequestedV1
+            - DiagnosisCompletedV1
+            - QuoteGenerationRequestedV1
+            - QuoteGeneratedV1
+            - QuoteApprovedV1
+            - QuoteRejectedV1
+            - ExecutionRequestedV1
+            - ExecutionQueuedV1
+            - ExecutionStartedV1
+            - ExecutionCompletedV1
+            - ExecutionFailedV1
+            - ExecutionCancelledV1
+            - PaymentCreationRequestedV1
+            - PaymentPendingV1
+            - PaymentConfirmedV1
+            - PaymentRejectedV1
+            - PaymentRefundedV1
+        event_version:
+          const: 1
+        occurred_at:
+          type: string
+          format: date-time
+        correlation_id:
+          type: string
+          format: uuid
+        causation_id:
+          type: string
+          format: uuid
+        saga_id:
+          type: string
+          format: uuid
+        order_id:
+          type: string
+          format: uuid
+        payload:
+          type: object
