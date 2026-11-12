@@ -9,6 +9,27 @@
 
 Esta matriz separa requisitos obrigatórios do enunciado de decisões arquiteturais aprovadas. Uma decisão não reduz o requisito original.
 
+## Evidência consolidada em 2026-11-12
+
+Esta consolidação substitui os estados históricos `planejado` das tabelas abaixo quando o ID aparece aqui.
+
+| Estado atual | Requisitos | Evidência objetiva |
+|---|---|---|
+| validado | REQ-ARCH-001, REQ-ARCH-003, REQ-DATA-001 a 004 | três repositórios locais; testes `tests/architecture/test_boundaries.py`; manifests; Terraform da Task 13 |
+| validado | REQ-OS-001 a 003 | `tests/integration/test_os_api.py` e testes de domínio/Saga do OS Service |
+| validado localmente | REQ-BILL-001 a 004 | testes de Billing, contract tests do Mercado Pago e fake; credencial sandbox real pendente |
+| validado | REQ-EXEC-001 a 003 | testes de API/repository DynamoDB do Execution Service |
+| validado | REQ-COMM-001 a 003 | testes OpenAPI, mensageria, DLQ, retry, Inbox/Outbox nos três serviços |
+| validado | REQ-SAGA-001 a 004 | process manager, compensações e BDD em `bdd/`; demonstração em vídeo pendente |
+| validado | REQ-QUAL-001 a 004 | `scripts/quality.sh`: OS 54 testes/97,23%; Billing 63/94,97%; Execution 48/93,65% |
+| implementado localmente | REQ-CICD-001 a 005 | `.github/workflows/pipeline.yml` por serviço; execução remota/deploy pendentes |
+| dependência externa | REQ-ARCH-002, REQ-CICD-006 | criação/push remoto e branch protection não autorizados |
+| implementado localmente | REQ-INFRA-001, REQ-INFRA-002 | manifests e Terraform validados; deploy e permissões AWS pendentes |
+| validado localmente | REQ-OBS-001 | testes de logs/telemetria e [consultas NRQL](new-relic/queries.md); New Relic remoto pendente |
+| implementado | REQ-DELIV-002, REQ-DELIV-003, REQ-DELIV-005, REQ-DELIV-006 | Dockerfiles, manifests, pipelines, READMEs e Swagger `/docs` por serviço |
+| dependência externa | REQ-DELIV-001, REQ-DELIV-004, REQ-VIDEO-001 a 005, REQ-PDF-001 a 003 | links, artifacts remotos, participantes, gravação e upload |
+| implementado | REQ-PDF-004, REQ-PDF-005 | ADRs e documentação final da Fase 4 |
+
 ## Arquitetura e dados
 
 | ID | Requisito obrigatório | Fonte | Componente | Teste/evidência planejada | Estado |
