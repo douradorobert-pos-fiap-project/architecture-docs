@@ -36,4 +36,8 @@ As imagens dos serviços iniciam API e workers pelo `newrelic-admin run-program`
 3. Verificar eventos com `receive_count > 1` e mensagens `message.failed` antes de reproduzir DLQ.
 4. Para pagamento, correlacionar `MercadoPagoRequest` apenas pelo `correlation_id`/OS; tokens e QR payloads nunca aparecem.
 
+## Dashboards importáveis
+
+Os arquivos [operacionais e da jornada da Saga](new-relic/dashboards/README.md) usam somente os eventos customizados existentes. Eles não adicionam métricas de status da OS ou durações de negócio. A importação na UI não confirma que os eventos estejam chegando: a ingestão precisa ser verificada na conta.
+
 Os testes unitários usam um recorder injetável e não exigem cloud ou licença. Logs permanecem em `stdout` e são coletados pelo ambiente implantado. Ainda não há um ambiente integrado local com Docker Compose/Kind para executar os três serviços juntos. A validação de ingestão no New Relic depende de credencial externa e deve ser feita somente em ambiente autorizado; permanece pendente para a submissão. Veja [current-status.md](current-status.md).

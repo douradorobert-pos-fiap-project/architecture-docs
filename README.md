@@ -22,6 +22,7 @@ O conteúdo desta documentação é derivado do código preservado em releases. 
 - [Estratégia e compensações da Saga](fase-4/saga.md)
 - [Infraestrutura e implantação](fase-4/infrastructure.md) e [deploy manual](fase-4/deployment.md)
 - [Validação atual do sandbox](fase-4/current-status.md)
+- [Dashboards importáveis do New Relic (JSON)](fase-4/new-relic/dashboards/README.md)
 - [Matriz de rastreabilidade dos requisitos](fase-4/requirements-traceability.md)
 - [Checklist de entrega](fase-4/delivery-checklist.md)
 

@@ -35,7 +35,7 @@ O cenário BDD está versionado em `bdd/`. Ele cobre o fluxo feliz, falha antes 
 
 - Regras de proteção de `main` são geridas no nível da organização, conforme informado pelo responsável do projeto.
 - Ambiente integrado local com Docker/Kind; o runbook anterior foi removido porque essa configuração ainda não foi aplicada e validada.
-- Evidência de ingestão e tracing distribuído no New Relic.
+- Evidência de ingestão e tracing distribuído no New Relic. [Dashboards JSON foram preparados](new-relic/dashboards/README.md) com os eventos atuais, mas a ingestão e os gráficos ainda precisam ser confirmados na conta.
 - Vídeo de até 15 minutos, que será gravado pela equipe.
 - PDF final com participantes, links, diagrama e evidências.
 
