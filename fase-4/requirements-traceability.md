@@ -19,7 +19,7 @@ Esta tabela é a leitura atual dos requisitos. As tabelas detalhadas abaixo pres
 | Implementado; cenário BDD versionado | REQ-SAGA-001 a 004 | process manager, compensações e BDD presentes. O cenário usa APIs e fake de pagamento e injeta algumas transições diretamente; não valida transporte SQS real. Vídeo ainda pendente. |
 | Validado em CI | REQ-QUAL-001 a 004, REQ-CICD-001 a 004 | OS: 67 testes/93,18%; Billing: 84/91,34%; Execution: 56/86,96%. [Runs e detalhes](current-status.md#pipelines-e-cobertura). |
 | Pipeline de deploy executada | REQ-CICD-005, REQ-INFRA-001, REQ-INFRA-002 | workflows manuais bem-sucedidos e EKS ativo no momento da observação. Deploy começa por decisão via `workflow_dispatch`. |
-| Parcial / pendente externa | REQ-CICD-006 | branch protection e checks obrigatórios em `main` ainda serão configurados pelo responsável. |
+| Configurado (informação do responsável) | REQ-CICD-006 | regras de proteção e checks de `main` são geridos no nível da organização; não foram auditados nesta atualização. |
 | Instrumentado; evidência remota pendente | REQ-OBS-001, REQ-VIDEO-005 | logs observados no CloudWatch; New Relic configurado, mas ingestão e tracing no painel não verificados. |
 | Implementado; publicação de evidências pendente | REQ-DELIV-001 a 006 | repositórios, Dockerfiles, manifests, workflows, READMEs e OpenAPI existem; links/artifacts devem ser incluídos na entrega final. |
 | Pendente | REQ-VIDEO-001 a 005, REQ-PDF-001 a 003 | vídeo pela equipe, identificação dos participantes e PDF final com links/evidências/diagrama. |

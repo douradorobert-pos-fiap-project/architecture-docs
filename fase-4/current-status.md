@@ -33,7 +33,7 @@ O cenário BDD está versionado em `bdd/`. Ele cobre o fluxo feliz, falha antes 
 
 ## Entrega ainda pendente
 
-- Configuração de proteção de `main` e exigência de PR/checagens nos três repositórios; Robert aplicará essa configuração.
+- Regras de proteção de `main` são geridas no nível da organização, conforme informado pelo responsável do projeto.
 - Evidência de ingestão e tracing distribuído no New Relic.
 - Vídeo de até 15 minutos, que será gravado pela equipe.
 - PDF final com participantes, links, diagrama e evidências.

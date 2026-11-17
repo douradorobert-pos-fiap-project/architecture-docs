@@ -6,7 +6,7 @@
 - [x] CI remoto: OS 93,18% (67 testes), Billing 91,34% (84), Execution 86,96% (56); workflows concluídos com sucesso em 17/11/2026. [Evidências e artifacts](current-status.md#pipelines-e-cobertura).
 - [x] Saga, mensageria, Inbox/Outbox, compensações e BDD versionados.
 - [x] Swagger/OpenAPI nativo em cada FastAPI (`/docs`, `/openapi.json`).
-- [x] Repositórios remotos e workflows independentes; proteção de `main` e checks obrigatórios ainda pendentes.
+- [x] Repositórios remotos, workflows independentes e regras de proteção de `main` geridas pela organização.
 - [x] Executar pipelines remotos; salvar/linkar artifacts como evidência no PDF final.
 - [x] Implantação no sandbox e fluxo de compra de teste validados em 17/11; preservar links/logs redigidos no material final.
 

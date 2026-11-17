@@ -25,7 +25,7 @@ O conteúdo desta documentação é derivado do código preservado em releases. 
 - [Matriz de rastreabilidade dos requisitos](fase-4/requirements-traceability.md)
 - [Checklist de entrega](fase-4/delivery-checklist.md)
 
-O código e o fluxo de pagamento foram validados no sandbox em 17/11/2026. A submissão acadêmica permanece em preparação: faltam a configuração de proteção de `main`, o vídeo e o PDF final com participantes e evidências.
+O código e o fluxo de pagamento foram validados no sandbox em 17/11/2026. As regras de proteção de `main` são geridas no nível da organização. A submissão acadêmica permanece em preparação: faltam o vídeo e o PDF final com participantes e evidências.
 
 ## Escopo
 
