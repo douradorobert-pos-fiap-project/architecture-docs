@@ -6,10 +6,11 @@ sequenceDiagram
     participant EX as Execution Service
     participant BI as Billing Service
     participant MP as Mercado Pago
+    participant GW as API Gateway
 
     Customer->>OS: POST /service-orders
     OS->>OS: Persist OS + Saga + Outbox
-    OS-->>Customer: 202 OS recebida
+    OS-->>Customer: 201 OS criada
     OS->>MQ: DiagnosisRequestedV1
     MQ->>EX: DiagnosisRequestedV1
     EX->>EX: Persist diagnosis + Inbox + Outbox
@@ -28,17 +29,19 @@ sequenceDiagram
     MQ->>OS: QuoteApprovedV1
     OS->>MQ: ExecutionRequestedV1
     MQ->>EX: ExecutionRequestedV1
-    EX->>EX: Execute and persist repair
+    EX->>EX: Queue, start and persist repair
     EX->>MQ: ExecutionCompletedV1
     MQ->>OS: ExecutionCompletedV1
-    OS->>OS: Set FINALIZADA + Outbox
+    OS->>OS: Set PAYMENT_PENDING + Outbox
     OS->>MQ: PaymentCreationRequestedV1
     MQ->>BI: PaymentCreationRequestedV1
     BI->>MP: Create dynamic QR with idempotency key
     MP-->>BI: Payment order + qr_data
     BI->>BI: Persist pending payment + Outbox
     BI->>MQ: PaymentPendingV1
-    MP->>BI: Webhook signal
+    MP->>GW: POST order.processed + X-Signature
+    GW->>BI: Route webhook to Billing
+    BI->>BI: Validate signature
     BI->>MP: Query authenticated payment status
     MP-->>BI: approved
     BI->>BI: Persist confirmation + Inbox + Outbox
@@ -46,19 +49,17 @@ sequenceDiagram
     MQ->>OS: PaymentConfirmedV1
     OS->>OS: Set ENTREGUE and complete Saga
 
-    alt Failure before repair starts
-        OS->>MQ: CancelExecutionV1 or CancelQuoteV1
-        MQ-->>EX: Release operational reservation
-        MQ-->>BI: Cancel pending quote or payment
-        OS->>OS: Mark Saga compensated and OS cancelled
-    else Failure after repair starts
-        EX->>MQ: ExecutionFailedV1 requiring manual handling
+    alt Quote rejected or execution fails before repair starts
+        BI->>MQ: QuoteRejectedV1
+        EX->>MQ: ExecutionFailedV1 or ExecutionCancelledV1
         MQ->>OS: Failure event
-        OS->>OS: Mark Saga manual intervention required
-    else Confirmed payment requires reversal
-        OS->>MQ: RefundPaymentV1 after explicit authorization
-        MQ->>BI: RefundPaymentV1
-        BI->>MP: Idempotent refund
-        MP-->>BI: Refund status
-        BI->>MQ: PaymentRefundedV1
+        OS->>OS: Cancel order and mark Saga compensated
+    else Execution fails after repair starts
+        EX->>MQ: ExecutionFailedV1
+        MQ->>OS: Failure event
+        OS->>OS: Mark manual intervention required
+    else Payment is rejected or refunded
+        BI->>MQ: PaymentRejectedV1 or PaymentRefundedV1
+        MQ->>OS: Payment event
+        OS->>OS: Mark manual intervention required
     end

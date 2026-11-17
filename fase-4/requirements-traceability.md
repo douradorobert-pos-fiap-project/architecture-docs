@@ -9,26 +9,23 @@
 
 Esta matriz separa requisitos obrigatórios do enunciado de decisões arquiteturais aprovadas. Uma decisão não reduz o requisito original.
 
-## Evidência consolidada em 2026-11-12
+## Situação consolidada em 2026-11-17
 
-Esta consolidação substitui os estados históricos `planejado` das tabelas abaixo quando o ID aparece aqui.
+Esta tabela é a leitura atual dos requisitos. As tabelas detalhadas abaixo preservam o mapeamento original e podem conter estados de planejamento da época em que foram escritos; use esta consolidação como estado vigente.
 
 | Estado atual | Requisitos | Evidência objetiva |
 |---|---|---|
-| validado | REQ-ARCH-001, REQ-ARCH-003, REQ-DATA-001 a 004 | três repositórios locais; testes `tests/architecture/test_boundaries.py`; manifests; Terraform da Task 13 |
-| validado | REQ-OS-001 a 003 | `tests/integration/test_os_api.py` e testes de domínio/Saga do OS Service |
-| validado localmente | REQ-BILL-001 a 004 | testes de Billing, contract tests do Mercado Pago e fake; credencial sandbox real pendente |
-| validado | REQ-EXEC-001 a 003 | testes de API/repository DynamoDB do Execution Service |
-| validado | REQ-COMM-001 a 003 | testes OpenAPI, mensageria, DLQ, retry, Inbox/Outbox nos três serviços |
-| validado | REQ-SAGA-001 a 004 | process manager, compensações e BDD em `bdd/`; demonstração em vídeo pendente |
-| validado | REQ-QUAL-001 a 004 | `scripts/quality.sh`: OS 54 testes/97,23%; Billing 63/94,97%; Execution 48/93,65% |
-| implementado localmente | REQ-CICD-001 a 005 | `.github/workflows/pipeline.yml` por serviço; execução remota/deploy pendentes |
-| dependência externa | REQ-ARCH-002, REQ-CICD-006 | criação/push remoto e branch protection não autorizados |
-| implementado localmente | REQ-INFRA-001, REQ-INFRA-002 | manifests e Terraform validados; deploy e permissões AWS pendentes |
-| validado localmente | REQ-OBS-001 | testes de logs/telemetria e [consultas NRQL](new-relic/queries.md); New Relic remoto pendente |
-| implementado | REQ-DELIV-002, REQ-DELIV-003, REQ-DELIV-005, REQ-DELIV-006 | Dockerfiles, manifests, pipelines, READMEs e Swagger `/docs` por serviço |
-| dependência externa | REQ-DELIV-001, REQ-DELIV-004, REQ-VIDEO-001 a 005, REQ-PDF-001 a 003 | links, artifacts remotos, participantes, gravação e upload |
-| implementado | REQ-PDF-004, REQ-PDF-005 | ADRs e documentação final da Fase 4 |
+| Implementado e validado em sandbox | REQ-ARCH-001 a 003, REQ-DATA-001 a 004, REQ-OS-001 a 003, REQ-BILL-001 a 004, REQ-EXEC-001 a 003, REQ-COMM-001 a 003 | três serviços implantados; APIs/workers prontos; uma compra de teste concluiu com Billing `APPROVED`, webhook `order` HTTP 200 e OS `DELIVERED`. Não implica validação de todos os cenários. |
+| Implementado; cenário BDD versionado | REQ-SAGA-001 a 004 | process manager, compensações e BDD presentes. O cenário usa APIs e fake de pagamento e injeta algumas transições diretamente; não valida transporte SQS real. Vídeo ainda pendente. |
+| Validado em CI | REQ-QUAL-001 a 004, REQ-CICD-001 a 004 | OS: 67 testes/93,18%; Billing: 84/91,34%; Execution: 56/86,96%. [Runs e detalhes](current-status.md#pipelines-e-cobertura). |
+| Pipeline de deploy executada | REQ-CICD-005, REQ-INFRA-001, REQ-INFRA-002 | workflows manuais bem-sucedidos e EKS ativo no momento da observação. Deploy começa por decisão via `workflow_dispatch`. |
+| Parcial / pendente externa | REQ-CICD-006 | branch protection e checks obrigatórios em `main` ainda serão configurados pelo responsável. |
+| Instrumentado; evidência remota pendente | REQ-OBS-001, REQ-VIDEO-005 | logs observados no CloudWatch; New Relic configurado, mas ingestão e tracing no painel não verificados. |
+| Implementado; publicação de evidências pendente | REQ-DELIV-001 a 006 | repositórios, Dockerfiles, manifests, workflows, READMEs e OpenAPI existem; links/artifacts devem ser incluídos na entrega final. |
+| Pendente | REQ-VIDEO-001 a 005, REQ-PDF-001 a 003 | vídeo pela equipe, identificação dos participantes e PDF final com links/evidências/diagrama. |
+| Documentado | REQ-PDF-004, REQ-PDF-005 | ADRs e documentos de arquitetura da Fase 4. |
+
+Não há evidência de que todos os requisitos estejam integralmente validados. Em particular, compensações automáticas após início do reparo e para pagamento recusado/reembolsado não estão implementadas; nesses casos há intervenção manual. Consulte [current-status.md](current-status.md) e [ADR-002](adrs/ADR-002-saga-orchestration.md).
 
 ## Arquitetura e dados
 

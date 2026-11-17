@@ -1,7 +1,7 @@
 # Infraestrutura
 
-`shared-infra` preserva VPC, EKS, NLB, API Gateway e observabilidade da Fase 3 e acrescenta três ECRs imutáveis, rotas por contexto, filas SQS/DLQ opcionais e tabela DynamoDB opcional. `database-infra` preserva um RDS PostgreSQL e oferece bootstrap idempotente de dois bancos lógicos e usuários isolados.
+`shared-infra` preserva a VPC, EKS, balanceamento e API Gateway e fornece recursos compartilhados para os serviços. O API Gateway encaminha rotas por contexto através de VPC Link ao ALB interno. A implantação usa filas SQS/DLQ e DynamoDB para Execution. `database-infra` fornece PostgreSQL com bancos lógicos separados para OS e Billing e usuários isolados.
 
-SQS e DynamoDB ficam desabilitados por padrão até a confirmação das permissões do sandbox. O resultado atual está em [aws-sandbox-validation.md](aws-sandbox-validation.md). Não foram executados `terraform apply`, deploy AWS ou alteração remota.
+O estado do sandbox e o escopo das verificações estão em [aws-sandbox-validation.md](aws-sandbox-validation.md) e [current-status.md](current-status.md). Em 17/11/2026 o EKS estava ativo e os workloads reportavam réplicas prontas. Este documento não afirma que o estado permanecerá ativo depois dessa observação.
 
-Cada serviço possui Dockerfile, Deployment, Service, HPA, ConfigMap e Secret de exemplo; OS e Billing também possuem Job de migration. Recursos compartilhados permanecem em `shared-infra`; workloads permanecem em seus repositórios.
+Cada serviço mantém Dockerfile e manifests de Kubernetes; OS e Billing também possuem Job de migration. Recursos compartilhados permanecem em `shared-infra`; workloads permanecem em seus repositórios. O deploy é iniciado manualmente por `workflow_dispatch`, conforme [deployment.md](deployment.md).

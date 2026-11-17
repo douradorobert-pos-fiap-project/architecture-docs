@@ -1,65 +1,55 @@
 flowchart LR
     Client[Cliente ou operador]
-    APIGW[Amazon API Gateway]
-    NLB[Network Load Balancer]
+    APIGW[API Gateway HTTP API]
+    VPCLink[VPC Link]
+    ALB[ALB interno]
 
     subgraph EKS[Amazon EKS compartilhado]
-        OS[OS Service]
-        Billing[Billing Service]
-        Execution[Execution Service]
-        RelayOS[OS Outbox Relay]
-        RelayBilling[Billing Outbox Relay]
-        RelayExecution[Execution Outbox Relay]
-        NR[New Relic agents]
+        OS[OS Service API e worker]
+        Billing[Billing Service API e worker]
+        Execution[Execution Service API e worker]
+        NR[Agentes New Relic configurados]
     end
 
     subgraph SQL[Amazon RDS PostgreSQL compartilhado]
-        OSDB[(os_db)]
-        BillingDB[(billing_db)]
+        OSDB[(Banco lógico os_db)]
+        BillingDB[(Banco lógico billing_db)]
     end
 
-    Dynamo[(Amazon DynamoDB)]
+    Dynamo[(Amazon DynamoDB do Execution)]
 
-    subgraph Messaging[Amazon SQS]
-        OSQueue[[OS command and event queues]]
-        BillingQueue[[Billing command and event queues]]
-        ExecutionQueue[[Execution command and event queues]]
-        DLQ[[Dead-letter queues]]
+    subgraph Messaging[Mensageria]
+        SQS[Filas e DLQs SQS na AWS]
+        ElasticMQ[ElasticMQ no ambiente local]
     end
 
-    MP[Mercado Pago test environment]
-    CPF[AWS Lambda CPF]
+    MP[Mercado Pago Sandbox]
+    CloudWatch[CloudWatch: access logs JSON]
     NewRelic[New Relic]
 
     Client -->|HTTPS REST| APIGW
-    APIGW -->|VPC Link| NLB
-    NLB -->|route /os| OS
-    NLB -->|route /billing| Billing
-    NLB -->|route /execution| Execution
+    APIGW -->|HTTP_PROXY| VPCLink --> ALB
+    ALB -->|rotas por serviço| OS
+    ALB -->|rotas por serviço| Billing
+    ALB -->|rotas por serviço| Execution
 
-    OS -->|SQL; exclusive credentials| OSDB
-    Billing -->|SQL; exclusive credentials| BillingDB
-    Execution -->|DynamoDB API| Dynamo
+    OS -->|credenciais isoladas| OSDB
+    Billing -->|credenciais isoladas| BillingDB
+    Execution -->|API DynamoDB| Dynamo
 
-    OS -->|transaction| RelayOS
-    Billing -->|transaction| RelayBilling
-    Execution -->|TransactWriteItems| RelayExecution
-    RelayOS --> OSQueue
-    RelayBilling --> BillingQueue
-    RelayExecution --> ExecutionQueue
+    OS <--> SQS
+    Billing <--> SQS
+    Execution <--> SQS
+    OS <--> ElasticMQ
+    Billing <--> ElasticMQ
+    Execution <--> ElasticMQ
 
-    OSQueue --> OS
-    BillingQueue --> Billing
-    ExecutionQueue --> Execution
-    OSQueue -. maxReceiveCount .-> DLQ
-    BillingQueue -. maxReceiveCount .-> DLQ
-    ExecutionQueue -. maxReceiveCount .-> DLQ
+    Billing -->|criar order QR e consultar status| MP
+    MP -->|POST order webhook| APIGW
+    APIGW -->|rota de webhook| ALB
 
-    Billing -->|QR order; status; refund| MP
-    MP -->|webhook signal| Billing
-    OS -->|synchronous validation| CPF
-
-    OS -. logs and traces .-> NR
-    Billing -. logs and traces .-> NR
-    Execution -. logs and traces .-> NR
-    NR --> NewRelic
+    APIGW -. access logs .-> CloudWatch
+    OS -. logs JSON e eventos configurados .-> NR
+    Billing -. logs JSON e eventos configurados .-> NR
+    Execution -. logs JSON e eventos configurados .-> NR
+    NR -. ingestão ainda precisa de evidência .-> NewRelic

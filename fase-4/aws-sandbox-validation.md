@@ -23,21 +23,21 @@ scripts/check-fase4-permissions.sh
 
 Cada capacidade é classificada como `ALLOWED` ou `DENIED_OR_UNAVAILABLE`. A segunda classificação inclui tanto ausência de permissão quanto indisponibilidade/expiração da sessão, pois o auditor evita expor detalhes potencialmente sensíveis retornados pela AWS CLI.
 
-## Resultado da sessão atual
+## Evidência operacional mais recente
 
-Status em 2026-11-12: **inconclusivo — identidade AWS indisponível**.
+Em 2026-11-17, uma consulta AWS somente leitura confirmou o cluster EKS `oficina-sandbox` como `ACTIVE`. Os Deployments de API de OS, Billing e Execution estavam com `2/2` réplicas disponíveis; os três workers, com `1/1` prontos. A rota pública de webhook do API Gateway também estava configurada para encaminhar ao ALB interno pelo VPC Link.
 
-A consulta somente leitura foi autorizada e executada, mas `sts get-caller-identity` retornou `DENIED_OR_UNAVAILABLE`. Isso indica credenciais expiradas/inválidas ou ausência da permissão básica na sessão atual. O auditor encerrou nesse ponto e não consultou SQS, DynamoDB, ECR ou EKS; consequentemente, suas permissões permanecem **não confirmadas**.
+Além da inspeção de infraestrutura, uma compra de teste de R$ 1,00 percorreu os serviços: Billing registrou `APPROVED`, a notificação Mercado Pago do tipo `order` recebeu HTTP `200` e a OS terminou em `DELIVERED`. Os detalhes operacionais e limites dessa evidência estão em [current-status.md](current-status.md).
 
-As validações locais confirmam que o script possui sintaxe Bash válida, falha de forma segura quando não há credenciais e classifica respostas permitidas/negadas usando uma AWS CLI simulada. Nenhuma operação de escrita foi executada.
+Essa evidência demonstra recursos ativos e um caminho funcional naquele momento; não comprova duração/ disponibilidade futura do sandbox nem permissões para criar ou alterar recursos. O resultado histórico do auditor em 12/11 foi inconclusivo e não deve ser tratado como status atual.
 
 ## Decisão e fallback
 
-- SQS continua sendo a mensageria-alvo na AWS, mas `enable_messaging` permanece `false` até uma sessão confirmar a capacidade.
-- DynamoDB continua sendo o banco do Execution Service, mas `enable_execution_dynamodb` permanece `false` até a confirmação.
+- SQS é a mensageria da implantação; ElasticMQ é usada no desenvolvimento local.
+- DynamoDB é o banco NoSQL do Execution Service; DynamoDB Local é usado no desenvolvimento local.
 - Desenvolvimento, testes integrados, BDD e CI usam ElasticMQ e DynamoDB Local, sem dependência contínua da AWS.
 - Se SQS estiver proibido, a substituição por RabbitMQ no EKS exige nova decisão arquitetural aprovada; não haverá fallback silencioso em produção.
-- Um resultado `ALLOWED` é evidência de consulta, não garantia de permissão para criação. Qualquer provisionamento continua condicionado a autorização explícita e a um `terraform plan` revisado.
+- Recursos já ativos no sandbox não significam autorização para provisionar novos recursos. Qualquer mudança de infraestrutura requer `terraform plan` revisado e autorização apropriada.
 
 ## Limitações
 

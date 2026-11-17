@@ -24,7 +24,7 @@ Fluxo aprovado:
 
 O pagamento ocorre depois do reparo e antes da entrega.
 
-Compensações antes do início do reparo podem cancelar a OS e liberar reservas. Depois do início do reparo, falhas seguem para pendência manual auditável. Reembolso exige comando explícito, autorização e idempotência.
+Recusa do orçamento e falha/cancelamento da execução antes do reparo cancelam a OS automaticamente. Depois do início do reparo, falhas seguem para pendência manual auditável; a intervenção não desfaz o reparo físico. Pagamento rejeitado ou reembolsado também exige tratamento manual no OS Service. Esses caminhos não equivalem a compensação automática em todas as etapas exigida literalmente pelo enunciado; são uma limitação atual, mantida explícita em [known-limitations.md](../known-limitations.md).
 
 ## Alternativas consideradas
 
@@ -46,7 +46,8 @@ Rejeitada porque acopla disponibilidade e não resolve publicação atômica, re
 - estado da Saga e comando de saída são gravados atomicamente por Outbox;
 - consumidores usam Inbox idempotente;
 - falhas e compensações ficam visíveis por `saga_id`;
-- operações irreversíveis possuem compensação de negócio, não rollback fictício.
+- ações irreversíveis não recebem rollback fictício; o estado passa para intervenção manual;
+- o deploy de cada serviço é iniciado por `workflow_dispatch` como gate de release, e a pipeline automatiza as etapas posteriores.
 
 ## Requisitos relacionados
 
