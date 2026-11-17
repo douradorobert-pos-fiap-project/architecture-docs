@@ -33,9 +33,9 @@ Essa evidência demonstra recursos ativos e um caminho funcional naquele momento
 
 ## Decisão e fallback
 
-- SQS é a mensageria da implantação; ElasticMQ é usada no desenvolvimento local.
-- DynamoDB é o banco NoSQL do Execution Service; DynamoDB Local é usado no desenvolvimento local.
-- Desenvolvimento, testes integrados, BDD e CI usam ElasticMQ e DynamoDB Local, sem dependência contínua da AWS.
+- SQS é a mensageria da implantação e DynamoDB é o banco NoSQL do Execution Service.
+- Não há atualmente um ambiente integrado para executar os três serviços localmente com containers/Kind. O runbook local foi removido até que essa configuração seja implementada e validada.
+- O BDD versionado roda clientes de API em processo, usa SQLite, Moto e um fake Mercado Pago; ele não inicia containers dos serviços nem usa SQS real/ElasticMQ.
 - Se SQS estiver proibido, a substituição por RabbitMQ no EKS exige nova decisão arquitetural aprovada; não haverá fallback silencioso em produção.
 - Recursos já ativos no sandbox não significam autorização para provisionar novos recursos. Qualquer mudança de infraestrutura requer `terraform plan` revisado e autorização apropriada.
 

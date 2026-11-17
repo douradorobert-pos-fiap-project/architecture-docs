@@ -21,7 +21,7 @@
 ## Roteiro do vídeo — máximo 15 minutos
 
 1. Contexto, três bounded contexts e diagrama (2 min).
-2. Bancos isolados, SQS/ElasticMQ e contratos (2 min).
+2. Bancos isolados, SQS e contratos (2 min); não demonstrar stack local integrada ainda não implementada.
 3. Fluxo feliz completo e Swagger (4 min).
 4. Falha, idempotência e compensação da Saga (2 min).
 5. Testes, cobertura e quality gates (2 min).

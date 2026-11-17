@@ -20,7 +20,6 @@ flowchart LR
 
     subgraph Messaging[Mensageria]
         SQS[Filas e DLQs SQS na AWS]
-        ElasticMQ[ElasticMQ no ambiente local]
     end
 
     MP[Mercado Pago Sandbox]
@@ -40,9 +39,6 @@ flowchart LR
     OS <--> SQS
     Billing <--> SQS
     Execution <--> SQS
-    OS <--> ElasticMQ
-    Billing <--> ElasticMQ
-    Execution <--> ElasticMQ
 
     Billing -->|criar order QR e consultar status| MP
     MP -->|POST order webhook| APIGW

@@ -29,11 +29,12 @@ Os três valores superam o piso de 80% configurado nos quality gates.
 
 O OS Service mantém o estado da Saga e coordena os participantes por eventos. As compensações automáticas existentes cobrem a recusa do orçamento e falhas/cancelamentos antes do início do reparo. Falhas depois que o reparo começou, pagamento rejeitado e reembolso encaminham o caso para intervenção manual. Como reparo executado e pagamento confirmado não podem ser desfeitos por rollback técnico, essa intervenção é um limite deliberado, mas não equivale a compensação automática em toda etapa do requisito acadêmico.
 
-O cenário BDD está versionado em `bdd/`. Ele cobre o fluxo feliz, falha antes do reparo e confirmação duplicada, usando APIs locais, armazenamento de teste e um fake de pagamento. O harness aplica algumas transições da Saga diretamente; ele não exercita a entrega real pelo SQS. Essa distinção deve ser mantida na apresentação.
+O cenário BDD está versionado em `bdd/`. Ele cobre o fluxo feliz, falha antes do reparo e confirmação duplicada, usando `TestClient`, SQLite, Moto e um fake de pagamento. O harness aplica algumas transições da Saga diretamente; não executa os três serviços em containers e não exercita a entrega real pelo SQS. Essa distinção deve ser mantida na apresentação.
 
 ## Entrega ainda pendente
 
 - Regras de proteção de `main` são geridas no nível da organização, conforme informado pelo responsável do projeto.
+- Ambiente integrado local com Docker/Kind; o runbook anterior foi removido porque essa configuração ainda não foi aplicada e validada.
 - Evidência de ingestão e tracing distribuído no New Relic.
 - Vídeo de até 15 minutos, que será gravado pela equipe.
 - PDF final com participantes, links, diagrama e evidências.

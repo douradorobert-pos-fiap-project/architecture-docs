@@ -27,12 +27,7 @@ A sanitização é recursiva e substitui por `[REDACTED]` valores associados a `
 - `NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true`.
 - Sem licença, logs JSON e correlação continuam ativos; o envio de eventos torna-se no-op.
 
-Exemplo de inicialização:
-
-```bash
-NEW_RELIC_APP_NAME=oficina-os-service \
-newrelic-admin run-program uvicorn src.api.main:app --host 0.0.0.0 --port 8000
-```
+As imagens dos serviços iniciam API e workers pelo `newrelic-admin run-program`; essa configuração descreve os workloads implantados, não um passo a passo de execução local.
 
 ## Diagnóstico de uma OS
 
@@ -41,6 +36,4 @@ newrelic-admin run-program uvicorn src.api.main:app --host 0.0.0.0 --port 8000
 3. Verificar eventos com `receive_count > 1` e mensagens `message.failed` antes de reproduzir DLQ.
 4. Para pagamento, correlacionar `MercadoPagoRequest` apenas pelo `correlation_id`/OS; tokens e QR payloads nunca aparecem.
 
-## Execução local
-
-Os testes usam um recorder injetável e não exigem cloud ou licença. Logs permanecem em `stdout` e podem ser coletados pelo Docker Compose ou pelo runner CI. A validação de ingestão no New Relic depende de credencial externa e deve ser feita somente em ambiente autorizado. Ela permanece pendente para a submissão; ver [current-status.md](current-status.md).
+Os testes unitários usam um recorder injetável e não exigem cloud ou licença. Logs permanecem em `stdout` e são coletados pelo ambiente implantado. Ainda não há um ambiente integrado local com Docker Compose/Kind para executar os três serviços juntos. A validação de ingestão no New Relic depende de credencial externa e deve ser feita somente em ambiente autorizado; permanece pendente para a submissão. Veja [current-status.md](current-status.md).

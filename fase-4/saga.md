@@ -33,4 +33,4 @@ O enunciado pede rollback/compensação em qualquer etapa. As duas primeiras sit
 
 ## Alcance do BDD
 
-O `pytest-bdd` versionado cobre o fluxo feliz, falha antes do início do reparo e confirmação de pagamento duplicada usando as APIs dos três serviços, bancos de teste e fake do Mercado Pago. O harness aplica alguns eventos diretamente ao process manager e não valida a entrega real por SQS/ElasticMQ; os testes de mensageria dos serviços cobrem esse transporte separadamente.
+O `pytest-bdd` versionado cobre o fluxo feliz, falha antes do início do reparo e confirmação de pagamento duplicada usando `TestClient`, SQLite, Moto e fake do Mercado Pago. O harness aplica alguns eventos diretamente ao process manager e não valida execução em containers nem entrega real por SQS/ElasticMQ. Os testes isolados de mensageria usam Moto/mocks e também não substituem uma validação com broker real.

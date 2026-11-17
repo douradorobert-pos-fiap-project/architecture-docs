@@ -1,8 +1,10 @@
 # Limitações conhecidas
 
-- A sessão AWS atual não passou em `get-caller-identity`; SQS, DynamoDB, ECR e EKS não foram confirmados.
-- Não houve `terraform plan` remoto, `apply`, push, configuração de branch protection ou deploy.
-- Docker/cluster local não estavam disponíveis para smoke de imagem/rollout; build e deploy permanecem gates do CI.
-- Credenciais sandbox do Mercado Pago não foram fornecidas; integração foi validada com fake e contract tests, sem cobrança real.
-- Links remotos, participantes, vídeo e evidências visuais dependem da equipe.
-- O bootstrap de bancos lógicos exige runner com acesso de rede ao RDS e permanece desabilitado por padrão.
+- A execução integrada local com Docker/Kind ainda não está implementada; não há runbook ou Compose para iniciar os três serviços juntos.
+- O BDD usa `TestClient`, SQLite, Moto e fake Mercado Pago; algumas transições da Saga são aplicadas diretamente e o teste não cobre transporte real de eventos.
+- As compensações automáticas não cobrem falhas após o início do reparo nem pagamento recusado/reembolsado; esses caminhos exigem intervenção manual.
+- A ingestão de eventos e tracing no New Relic ainda precisa ser confirmada no painel; configuração no deployment não comprova recebimento.
+- O estado do AWS Academy Sandbox é temporário; EKS e workloads foram observados ativos em 17/11/2026, sem garantia de disponibilidade posterior.
+- O deploy começa manualmente por `workflow_dispatch`; o merge não dispara rollout automaticamente.
+- Vídeo, PDF final com participantes, links e evidências visuais ainda dependem da equipe.
+- Regras de proteção de `main` são administradas no nível da organização, conforme confirmação do responsável.

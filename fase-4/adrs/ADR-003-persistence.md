@@ -15,7 +15,7 @@ A Fase 4 exige banco próprio por serviço e o uso combinado de SQL e NoSQL. O A
 - Execution Service usa tabelas DynamoDB próprias.
 - `os_db` e `billing_db` compartilham uma instância RDS, mas possuem usuários, credenciais, migrations e permissões isolados.
 - nenhum serviço recebe secret ou permissão para o banco de outro.
-- DynamoDB Local substitui o serviço AWS em desenvolvimento e CI.
+- Testes isolados podem usar Moto ou DynamoDB Local; o ambiente integrado local dos três serviços ainda não foi implementado.
 
 ## Alternativas consideradas
 
@@ -33,7 +33,7 @@ Rejeitada por não cumprir o requisito NoSQL e por modelar fila/histórico opera
 
 ### MongoDB/DocumentDB
 
-Rejeitada porque DocumentDB aumenta custo e complexidade; MongoDB adicionaria outra operação no Kubernetes sem vantagem suficiente sobre DynamoDB Local + DynamoDB.
+Rejeitada porque DocumentDB aumenta custo e complexidade; MongoDB adicionaria outra operação no Kubernetes sem vantagem suficiente sobre DynamoDB e mocks/emuladores usados nos testes isolados.
 
 ## Consequências
 

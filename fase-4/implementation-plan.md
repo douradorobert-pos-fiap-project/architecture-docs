@@ -4,6 +4,8 @@
 
 **Goal:** Entregar três microsserviços independentes para o ciclo completo de uma ordem de serviço, coordenados por Saga e mensageria, com pagamento Mercado Pago, execução local, Kubernetes, CI/CD e observabilidade distribuída.
 
+**Status da execução local:** O ambiente integrado com Compose/Kind descrito nas Tasks 8 e 15 ainda não foi aplicado. Essas etapas continuam pendentes; não há runbook de execução local disponível até que a stack seja implementada e validada.
+
 **Architecture:** O OS Service mantém a identidade da OS e orquestra a Saga; Billing mantém orçamento, aprovação e pagamento; Execution mantém diagnóstico e reparo. Comandos e eventos trafegam por SQS/ElasticMQ com Outbox e Inbox; OS e Billing usam bancos PostgreSQL lógicos isolados no mesmo RDS e Execution usa DynamoDB.
 
 **Tech Stack:** Python 3.12, FastAPI, SQLAlchemy 2, Alembic, PostgreSQL 16, boto3, DynamoDB, SQS/ElasticMQ, pytest, pytest-bdd, Ruff, Black, mypy, Bandit, Xenon/Radon, Docker, Kubernetes, Terraform, GitHub Actions e New Relic.

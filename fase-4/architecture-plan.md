@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aprovado em 2026-11-08 como base para o planejamento da implementação. Este documento não substitui o enunciado em `requirements_fase_4.md`.
+Aprovado em 2026-11-08 como base para o planejamento da implementação. Este documento não substitui o enunciado em `requirements_fase_4.md`; partes planejadas, incluindo a execução local integrada, ainda não foram implementadas.
 
 ## Objetivo
 
@@ -13,7 +13,7 @@ Evoluir o monólito da Fase 3 para três microsserviços independentes, preserva
 1. O pagamento ocorre após a conclusão do reparo e antes da entrega da OS.
 2. Um único RDS PostgreSQL hospeda bancos lógicos isolados para OS e Billing, com usuários sem acesso cruzado.
 3. O Execution Service usa DynamoDB.
-4. A mensageria usa Amazon SQS quando as permissões do AWS Academy Sandbox permitirem; o ambiente local e os testes usam uma implementação compatível executável sem AWS.
+4. A mensageria implantada usa Amazon SQS. ElasticMQ foi considerada para um futuro ambiente local, que ainda não está implementado nem validado.
 5. A Saga é orquestrada por um process manager dentro do OS Service, sem quarto microsserviço.
 6. O catálogo comercial e os preços pertencem ao Billing Service; diagnóstico, fila, reparo e consumo físico de peças pertencem ao Execution Service.
 7. A qualidade é verificada dentro do runner, sem SonarCloud, por um conjunto de ferramentas equivalentes com quality gates bloqueantes.

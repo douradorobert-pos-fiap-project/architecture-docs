@@ -11,10 +11,6 @@ servers:
     url: sqs.{region}.amazonaws.com
     protocol: https
     description: Amazon SQS in the AWS sandbox when permissions are available.
-  local:
-    url: localhost:9324
-    protocol: https
-    description: ElasticMQ SQS-compatible endpoint for local and CI execution.
 channels:
   service-order-commands:
     description: Commands consumed by the OS Service.

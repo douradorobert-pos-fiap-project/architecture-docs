@@ -16,7 +16,7 @@ Esta tabela é a leitura atual dos requisitos. As tabelas detalhadas abaixo pres
 | Estado atual | Requisitos | Evidência objetiva |
 |---|---|---|
 | Implementado e validado em sandbox | REQ-ARCH-001 a 003, REQ-DATA-001 a 004, REQ-OS-001 a 003, REQ-BILL-001 a 004, REQ-EXEC-001 a 003, REQ-COMM-001 a 003 | três serviços implantados; APIs/workers prontos; uma compra de teste concluiu com Billing `APPROVED`, webhook `order` HTTP 200 e OS `DELIVERED`. Não implica validação de todos os cenários. |
-| Implementado; cenário BDD versionado | REQ-SAGA-001 a 004 | process manager, compensações e BDD presentes. O cenário usa APIs e fake de pagamento e injeta algumas transições diretamente; não valida transporte SQS real. Vídeo ainda pendente. |
+| Implementado; cenário BDD versionado | REQ-SAGA-001 a 004 | process manager, compensações e BDD presentes. O cenário usa TestClient, SQLite, Moto e fake de pagamento e injeta algumas transições diretamente; não valida containers integrados nem transporte SQS real. Vídeo ainda pendente. |
 | Validado em CI | REQ-QUAL-001 a 004, REQ-CICD-001 a 004 | OS: 67 testes/93,18%; Billing: 84/91,34%; Execution: 56/86,96%. [Runs e detalhes](current-status.md#pipelines-e-cobertura). |
 | Pipeline de deploy executada | REQ-CICD-005, REQ-INFRA-001, REQ-INFRA-002 | workflows manuais bem-sucedidos e EKS ativo no momento da observação. Deploy começa por decisão via `workflow_dispatch`. |
 | Configurado (informação do responsável) | REQ-CICD-006 | regras de proteção e checks de `main` são geridos no nível da organização; não foram auditados nesta atualização. |
@@ -36,7 +36,7 @@ Não há evidência de que todos os requisitos estejam integralmente validados. 
 | REQ-ARCH-003 | Cada microsserviço possuir infraestrutura própria | Separação / Infraestrutura | cada serviço e `shared-infra` | manifests/pipeline específicos e recursos compartilhados explicitamente separados | planejado |
 | REQ-DATA-001 | Cada microsserviço possuir banco próprio | Separação em Microsserviços | OS, Billing, Execution | credenciais isoladas; teste impedindo acesso cruzado | planejado |
 | REQ-DATA-002 | Usar ao menos um banco SQL | Separação em Microsserviços | OS e Billing | migrations PostgreSQL e testes de repository | planejado |
-| REQ-DATA-003 | Usar ao menos um banco NoSQL | Separação em Microsserviços | Execution | repository e testes com DynamoDB Local | planejado |
+| REQ-DATA-003 | Usar ao menos um banco NoSQL | Separação em Microsserviços | Execution | repository e testes isolados com Moto; ambiente local integrado não disponível | planejado |
 | REQ-DATA-004 | Nenhum serviço acessar diretamente o banco de outro | Comunicação | todos | teste arquitetural, secrets isolados e revisão Terraform | planejado |
 | REQ-OS-001 | Abrir ordem de serviço | Exemplo OS Service | OS | teste unitário e API `POST /service-orders` | planejado |
 | REQ-OS-002 | Atualizar status da OS | Exemplo OS Service | OS/Saga | testes da máquina de estados e eventos | planejado |
@@ -44,7 +44,7 @@ Não há evidência de que todos os requisitos estejam integralmente validados. 
 | REQ-BILL-001 | Gerar e enviar orçamento para aprovação | Exemplo Billing Service | Billing | testes de cálculo, snapshot e `QuoteGeneratedV1` | planejado |
 | REQ-BILL-002 | Registrar e verificar pagamentos | Exemplo Billing Service | Billing | testes de estados e contract tests do gateway | planejado |
 | REQ-BILL-003 | Atualizar a OS após pagamento | Exemplo Billing Service | Billing → OS | teste do evento `PaymentConfirmedV1` e transição da Saga | planejado |
-| REQ-BILL-004 | Integrar pagamentos com Mercado Pago | Exemplo Billing Service | Billing | contract tests, fake local e evidência em credenciais de teste | planejado |
+| REQ-BILL-004 | Integrar pagamentos com Mercado Pago | Exemplo Billing Service | Billing | contract tests, fake no BDD e evidência em sandbox | planejado |
 | REQ-EXEC-001 | Gerenciar fila de execução | Exemplo Execução e Produção | Execution | testes de ordenação/estado no DynamoDB | planejado |
 | REQ-EXEC-002 | Atualizar diagnóstico e reparos | Exemplo Execução e Produção | Execution | testes das transições operacionais | planejado |
 | REQ-EXEC-003 | Comunicar finalização ao OS Service | Exemplo Execução e Produção | Execution → OS | `ExecutionCompletedV1` e teste integrado | planejado |
@@ -54,7 +54,7 @@ Não há evidência de que todos os requisitos estejam integralmente validados. 
 | ID | Requisito obrigatório | Fonte | Componente | Teste/evidência planejada | Estado |
 |---|---|---|---|---|---|
 | REQ-COMM-001 | Definir APIs RESTful síncronas quando necessárias | Comunicação | três serviços | OpenAPI validado e contract tests | planejado |
-| REQ-COMM-002 | Usar mensageria assíncrona para eventos e integração desacoplada | Comunicação / Infraestrutura | SQS/ElasticMQ | testes publish/consume reais contra ElasticMQ | planejado |
+| REQ-COMM-002 | Usar mensageria assíncrona para eventos e integração desacoplada | Comunicação / Infraestrutura | SQS | testes dos adapters com Moto e execução dos serviços no sandbox; BDD não valida SQS | planejado |
 | REQ-COMM-003 | Tratar entrega duplicada e retry com segurança | Decisão necessária à mensageria | todos | testes Inbox/Outbox, duplicata, poison message e DLQ | planejado |
 | REQ-SAGA-001 | Coordenar o fluxo transacional da OS com Saga Pattern | Saga Pattern | OS process manager | BDD ponta a ponta e testes da Saga | planejado |
 | REQ-SAGA-002 | Implementar rollback ou compensação em falhas | Saga Pattern | OS, Billing, Execution | BDD de falha e testes por compensação | planejado |
@@ -106,8 +106,8 @@ Não há evidência de que todos os requisitos estejam integralmente validados. 
 |---|---|---|
 | DEC-001 | Pagamento depois do reparo e antes da entrega | teste impede `ENTREGUE` sem `ExecutionCompletedV1` e `PaymentConfirmedV1` |
 | DEC-002 | Um RDS com `os_db` e `billing_db` | usuários isolados; nenhuma permissão cruzada |
-| DEC-003 | DynamoDB pertence ao Execution Service | testes de repository rodam com DynamoDB Local |
-| DEC-004 | SQS na AWS e ElasticMQ local | mesmo adapter boto3, mudando apenas endpoint/configuração |
+| DEC-003 | DynamoDB pertence ao Execution Service | testes isolados usam Moto; DynamoDB Local não compõe um ambiente integrado disponível |
+| DEC-004 | SQS na AWS; ElasticMQ escolhida como alternativa futura, ainda não aplicada | ambiente local integrado pendente; nenhum uso local deve ser presumido |
 | DEC-005 | Saga orquestrada dentro do OS Service | process manager persistente, sem quarto serviço |
 | DEC-006 | Catálogo no Billing; consumo físico no Execution | eventos carregam snapshots, sem consulta cruzada de banco |
 | DEC-007 | Quality gates executados no runner | nenhuma dependência de SonarCloud |
