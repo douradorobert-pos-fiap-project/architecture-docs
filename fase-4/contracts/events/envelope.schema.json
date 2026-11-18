@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://douradorobert-pos-fiap-project.github.io/contracts/events/envelope-v1.schema.json",
+  "title": "EventEnvelopeV1",
+  "description": "Metadata shared by every asynchronous command and event in Fase 4.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "event_version",
+    "occurred_at",
+    "correlation_id",
+    "causation_id",
+    "saga_id",
+    "order_id",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "event_type": {"type": "string", "minLength": 1},
+    "event_version": {"const": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "correlation_id": {"type": "string", "format": "uuid"},
+    "causation_id": {"type": "string", "format": "uuid"},
+    "saga_id": {"type": "string", "format": "uuid"},
+    "order_id": {"type": "string", "format": "uuid"},
+    "payload": {"type": "object"}
+  }
+}

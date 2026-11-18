@@ -15,6 +15,19 @@ O conteúdo desta documentação é derivado do código preservado em releases. 
 - [Releases e commits analisados](fase-3/releases.md)
 - [Diagramas complementares](fase-3/diagrams/)
 
+### Fase 4 — Microsserviços e Saga
+
+- [Arquitetura e limites dos serviços](fase-4/architecture.md)
+- [Diagrama de arquitetura](fase-4/diagrams/target-architecture.mmd)
+- [Estratégia e compensações da Saga](fase-4/saga.md)
+- [Infraestrutura e implantação](fase-4/infrastructure.md) e [deploy manual](fase-4/deployment.md)
+- [Validação atual do sandbox](fase-4/current-status.md)
+- [Dashboards importáveis do New Relic (JSON)](fase-4/new-relic/dashboards/README.md)
+- [Matriz de rastreabilidade dos requisitos](fase-4/requirements-traceability.md)
+- [Checklist de entrega](fase-4/delivery-checklist.md)
+
+O código e o fluxo de pagamento foram validados no sandbox em 17/11/2026. As regras de proteção de `main` são geridas no nível da organização. A submissão acadêmica permanece em preparação: faltam o vídeo e o PDF final com participantes e evidências.
+
 ## Escopo
 
 A Fase 3 é formada por quatro repositórios:

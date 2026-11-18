@@ -1,0 +1,65 @@
+sequenceDiagram
+    autonumber
+    actor Customer as Cliente
+    participant OS as OS Service / Orchestrator
+    participant MQ as SQS
+    participant EX as Execution Service
+    participant BI as Billing Service
+    participant MP as Mercado Pago
+    participant GW as API Gateway
+
+    Customer->>OS: POST /service-orders
+    OS->>OS: Persist OS + Saga + Outbox
+    OS-->>Customer: 201 OS criada
+    OS->>MQ: DiagnosisRequestedV1
+    MQ->>EX: DiagnosisRequestedV1
+    EX->>EX: Persist diagnosis + Inbox + Outbox
+    EX->>MQ: DiagnosisCompletedV1
+    MQ->>OS: DiagnosisCompletedV1
+    OS->>OS: Advance Saga + Outbox
+    OS->>MQ: QuoteGenerationRequestedV1
+    MQ->>BI: QuoteGenerationRequestedV1
+    BI->>BI: Persist quote snapshot + Inbox + Outbox
+    BI->>MQ: QuoteGeneratedV1
+    MQ->>OS: QuoteGeneratedV1
+    OS->>OS: Set AGUARDANDO_APROVACAO
+    Customer->>BI: Approve quote
+    BI->>BI: Persist approval + Outbox
+    BI->>MQ: QuoteApprovedV1
+    MQ->>OS: QuoteApprovedV1
+    OS->>MQ: ExecutionRequestedV1
+    MQ->>EX: ExecutionRequestedV1
+    EX->>EX: Queue, start and persist repair
+    EX->>MQ: ExecutionCompletedV1
+    MQ->>OS: ExecutionCompletedV1
+    OS->>OS: Set PAYMENT_PENDING + Outbox
+    OS->>MQ: PaymentCreationRequestedV1
+    MQ->>BI: PaymentCreationRequestedV1
+    BI->>MP: Create dynamic QR with idempotency key
+    MP-->>BI: Payment order + qr_data
+    BI->>BI: Persist pending payment + Outbox
+    BI->>MQ: PaymentPendingV1
+    MP->>GW: POST order.processed + X-Signature
+    GW->>BI: Route webhook to Billing
+    BI->>BI: Validate signature
+    BI->>MP: Query authenticated payment status
+    MP-->>BI: approved
+    BI->>BI: Persist confirmation + Inbox + Outbox
+    BI->>MQ: PaymentConfirmedV1
+    MQ->>OS: PaymentConfirmedV1
+    OS->>OS: Set ENTREGUE and complete Saga
+
+    alt Quote rejected or execution fails before repair starts
+        BI->>MQ: QuoteRejectedV1
+        EX->>MQ: ExecutionFailedV1 or ExecutionCancelledV1
+        MQ->>OS: Failure event
+        OS->>OS: Cancel order and mark Saga compensated
+    else Execution fails after repair starts
+        EX->>MQ: ExecutionFailedV1
+        MQ->>OS: Failure event
+        OS->>OS: Mark manual intervention required
+    else Payment is rejected or refunded
+        BI->>MQ: PaymentRejectedV1 or PaymentRefundedV1
+        MQ->>OS: Payment event
+        OS->>OS: Mark manual intervention required
+    end

@@ -1,0 +1,76 @@
+{
+  "name": "FIAP Oficina - Jornada da Saga",
+  "description": "Visao de progresso da Saga derivada dos eventos atuais. As contagens representam transicoes, nao ordens unicas nem status/historico completo de OS.",
+  "permissions": "PRIVATE",
+  "pages": [
+    {
+      "name": "Fluxo da Saga",
+      "description": "Atividade agregada por estado e etapa do process manager do OS Service.",
+      "widgets": [
+        {
+          "title": "Transicoes registradas por estado atual",
+          "layout": {"column": 1, "row": 1, "width": 6, "height": 3},
+          "linkedEntityGuids": null,
+          "visualization": {"id": "viz.line"},
+          "rawConfiguration": {
+            "nrqlQueries": [{"accountId": 0, "query": "FROM SagaTransition SELECT count(*) AS 'Transitions' FACET current_state TIMESERIES"}],
+            "legend": {"enabled": true},
+            "platformOptions": {"ignoreTimeRange": false}
+          }
+        },
+        {
+          "title": "Transicoes entre estados e eventos (ultimas 24h)",
+          "layout": {"column": 7, "row": 1, "width": 6, "height": 3},
+          "linkedEntityGuids": null,
+          "visualization": {"id": "viz.table"},
+          "rawConfiguration": {
+            "nrqlQueries": [{"accountId": 0, "query": "FROM SagaTransition SELECT count(*) AS 'Transitions' FACET previous_state, current_state, event_type SINCE 24 hours ago LIMIT 100"}],
+            "platformOptions": {"ignoreTimeRange": false}
+          }
+        },
+        {
+          "title": "Chamadas das rotas de OS",
+          "layout": {"column": 1, "row": 4, "width": 6, "height": 3},
+          "linkedEntityGuids": null,
+          "visualization": {"id": "viz.line"},
+          "rawConfiguration": {
+            "nrqlQueries": [{"accountId": 0, "query": "FROM HttpRequest SELECT count(*) AS 'Requests' WHERE service = 'os-service' AND path LIKE '%service-orders%' FACET path TIMESERIES"}],
+            "legend": {"enabled": true},
+            "platformOptions": {"ignoreTimeRange": false}
+          }
+        },
+        {
+          "title": "Chamadas de orcamento e pagamento no Billing",
+          "layout": {"column": 7, "row": 4, "width": 6, "height": 3},
+          "linkedEntityGuids": null,
+          "visualization": {"id": "viz.line"},
+          "rawConfiguration": {
+            "nrqlQueries": [{"accountId": 0, "query": "FROM HttpRequest SELECT count(*) AS 'Requests' WHERE service = 'billing-service' AND (path LIKE '%quotes%' OR path LIKE '%payments%') FACET path TIMESERIES"}],
+            "legend": {"enabled": true},
+            "platformOptions": {"ignoreTimeRange": false}
+          }
+        },
+        {
+          "title": "Chamadas Mercado Pago registradas por codigo HTTP",
+          "layout": {"column": 1, "row": 7, "width": 6, "height": 3},
+          "linkedEntityGuids": null,
+          "visualization": {"id": "viz.line"},
+          "rawConfiguration": {
+            "nrqlQueries": [{"accountId": 0, "query": "FROM MercadoPagoRequest SELECT count(*) AS 'Recorded responses' FACET status_code TIMESERIES"}],
+            "legend": {"enabled": true},
+            "platformOptions": {"ignoreTimeRange": false}
+          }
+        },
+        {
+          "title": "Observacao sobre os dados",
+          "layout": {"column": 7, "row": 7, "width": 6, "height": 3},
+          "linkedEntityGuids": null,
+          "visualization": {"id": "viz.markdown"},
+          "rawConfiguration": {
+            "text": "Este painel usa somente eventos existentes. SagaTransition nao inclui order_id nem saga_id: nao ha contagem de OS unicas, drill-down por OS ou duracao por etapa. MercadoPagoRequest registra somente respostas retornadas com sucesso pelo client; erros do gateway nao aparecem nesse evento. A ingestao New Relic ainda precisa ser confirmada."
+          }
+        }
+      ]
+    }
+  ]
+}

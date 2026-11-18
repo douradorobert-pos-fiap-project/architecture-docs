@@ -1,0 +1,51 @@
+flowchart LR
+    Client[Cliente ou operador]
+    APIGW[API Gateway HTTP API]
+    VPCLink[VPC Link]
+    ALB[ALB interno]
+
+    subgraph EKS[Amazon EKS compartilhado]
+        OS[OS Service API e worker]
+        Billing[Billing Service API e worker]
+        Execution[Execution Service API e worker]
+        NR[Agentes New Relic configurados]
+    end
+
+    subgraph SQL[Amazon RDS PostgreSQL compartilhado]
+        OSDB[(Banco lógico os_db)]
+        BillingDB[(Banco lógico billing_db)]
+    end
+
+    Dynamo[(Amazon DynamoDB do Execution)]
+
+    subgraph Messaging[Mensageria]
+        SQS[Filas e DLQs SQS na AWS]
+    end
+
+    MP[Mercado Pago Sandbox]
+    CloudWatch[CloudWatch: access logs JSON]
+    NewRelic[New Relic]
+
+    Client -->|HTTPS REST| APIGW
+    APIGW -->|HTTP_PROXY| VPCLink --> ALB
+    ALB -->|rotas por serviço| OS
+    ALB -->|rotas por serviço| Billing
+    ALB -->|rotas por serviço| Execution
+
+    OS -->|credenciais isoladas| OSDB
+    Billing -->|credenciais isoladas| BillingDB
+    Execution -->|API DynamoDB| Dynamo
+
+    OS <--> SQS
+    Billing <--> SQS
+    Execution <--> SQS
+
+    Billing -->|criar order QR e consultar status| MP
+    MP -->|POST order webhook| APIGW
+    APIGW -->|rota de webhook| ALB
+
+    APIGW -. access logs .-> CloudWatch
+    OS -. logs JSON e eventos configurados .-> NR
+    Billing -. logs JSON e eventos configurados .-> NR
+    Execution -. logs JSON e eventos configurados .-> NR
+    NR -. ingestão ainda precisa de evidência .-> NewRelic
